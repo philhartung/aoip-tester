@@ -1,6 +1,6 @@
 v=0
 o=- 1 0 IN IP4 10.0.0.10
-s=[TEST] L24 48kHz 1ch @ 0.125ms
+s=[TEST] L24 48kHz 1ch @ 0.125ms (B)
 c=IN IP4 239.65.0.1/32
 t=0 0
 m=audio 5004 RTP/AVP 97
