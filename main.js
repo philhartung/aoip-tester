@@ -175,8 +175,6 @@ function processSdpFile(filePath) {
                     `application/x-rtp,clock-rate=${sampleRate},channels=${channels},payload=${payloadType} ! ` +
                     `udpsink host=${multicastAddress} port=${udpPort} qos=true qos-dscp=34 multicast-iface=${networkInterface}`;
 
-                console.log(pipelineStr)
-
                 // Spawn the Python process as a child process
                 const gstProcess = spawn('gst-launch-1.0', pipelineStr.split(' '));
                 childProcesses.push(gstProcess);
