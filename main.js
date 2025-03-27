@@ -10,7 +10,6 @@ const sdpDirectory = 'sdp';
 const interfaces = os.networkInterfaces();
 const networkInterface = "en7"; // Change this to your desired network interface
 const sourceIp = interfaces[networkInterface].find(i => i.family === 'IPv4').address;
-const pythonScriptPath = './stream.py';
 
 // Array to store child processes
 const childProcesses = [];
