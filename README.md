@@ -2,7 +2,7 @@
 The Audio over IP Tester is designed to test [aes67-monitor](https://github.com/philhartung/aes67-monitor). It processes SDP files to generate streams based on the provided configurations and broadcasts the SDP across the network using the Session Announcement Protocol.
 
 ## Tests
-SDP Files for several stream configurations are provided under sdp/tests/:
+SDP Files for several stream configurations are provided under `sdp/tests/`:
 
 | Codec | Samplerate | Channels | Packet Time |
 |-------|------------|----------|-------------|
