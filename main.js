@@ -140,11 +140,14 @@ function processSdpFile(filePath) {
             // Extract stream parameters for the Python script
             for (let i = 0; i < sdpObject.media.length; i++) {
                 const rtpInfo = sdpObject.media[i].rtp[0];
+                const payloadType = rtpInfo.payload;
                 const codec = rtpInfo.codec.toLowerCase();
                 const packetTime = sdpObject.media[i].ptime ? sdpObject.media[i].ptime.toString() : "1";
+                const packetTimeNS = Math.floor(parseFloat(packetTime) * 1e6);
                 const channels = rtpInfo.encoding || 8;
                 const sampleRate = rtpInfo.rate || 48000;
                 const udpPort = sdpObject.media[i].port || 5004;
+                let audiotestsrcStr = 'audiotestsrc freq=' + (Math.floor(Math.random() * (1000 - 240 + 1)) + 240);
 
                 // Determine the multicast address
                 let multicastAddress = "239.69.0.121";
@@ -153,32 +156,40 @@ function processSdpFile(filePath) {
                 } else if (sdpObject.connection) {
                     multicastAddress = sdpObject.connection.ip.split("/")[0];
                 }
-                const multicastIface = networkInterface;
+                
+                // construct pipeline string
+                let audioFormat, rtpPay;
+                if (codec === 'l24') {
+                    audioFormat = 'S24BE';
+                    rtpPay = 'rtpL24pay';
+                } else {
+                    audioFormat = 'S16BE';
+                    rtpPay = 'rtpL16pay';
+                }
 
-                // Build the command-line arguments for the Python script
-                const args = [
-                    "--codec", codec,
-                    "--packettime", packetTime,
-                    "--channels", channels.toString(),
-                    "--samplerate", sampleRate.toString(),
-                    "--udp-port", udpPort.toString(),
-                    "--multicast-address", multicastAddress,
-                    "--multicast-iface", multicastIface
-                ];
+                const pipelineStr =
+                    `${audiotestsrcStr} ! ` +
+                    `audioconvert ! ` +
+                    `audio/x-raw,format=${audioFormat},channels=${channels},rate=${sampleRate} ! ` +
+                    `${rtpPay} name=rtppay min-ptime=${packetTimeNS} max-ptime=${packetTimeNS} ! ` +
+                    `application/x-rtp,clock-rate=${sampleRate},channels=${channels},payload=${payloadType} ! ` +
+                    `udpsink host=${multicastAddress} port=${udpPort} qos=true qos-dscp=34 multicast-iface=${networkInterface}`;
+
+                console.log(pipelineStr)
 
                 // Spawn the Python process as a child process
-                const pythonProcess = spawn('python3', [pythonScriptPath, ...args]);
-                childProcesses.push(pythonProcess);
+                const gstProcess = spawn('gst-launch-1.0', pipelineStr.split(' '));
+                childProcesses.push(gstProcess);
 
-                pythonProcess.stdout.on('data', (data) => {
+                gstProcess.stdout.on('data', (data) => {
                     console.log(`Python stdout: ${data}`);
                 });
 
-                pythonProcess.stderr.on('data', (data) => {
+                gstProcess.stderr.on('data', (data) => {
                     console.error(`Python stderr: ${data}`);
                 });
 
-                pythonProcess.on('close', (code) => {
+                gstProcess.on('close', (code) => {
                     console.log(`Python process exited with code ${code}`);
                 });
             }
