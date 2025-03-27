@@ -1,0 +1,11 @@
+v=0
+o=- 15 0 IN IP4 10.0.0.10
+s=[TEST] L16 48kHz 64ch @ 0.125ms
+c=IN IP4 239.65.0.15/32
+t=0 0
+m=audio 5004 RTP/AVP 97
+a=recvonly
+a=rtpmap:97 L16/48000/64
+a=ptime:0.125
+a=ts-refclk:ptp=IEEE1588-2008:00-1D-C1-FF-FE-00-00-00:0
+a=mediaclk:direct=0

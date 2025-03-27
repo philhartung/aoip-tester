@@ -6,7 +6,7 @@ const sdpTransform = require('sdp-transform');
 const { spawn } = require('child_process');
 
 // Constants and Global Variables
-const sdpDirectory = 'sdp';
+const sdpDirectory = 'sdp/tests/L16';
 const interfaces = os.networkInterfaces();
 const networkInterface = "en7"; // Change this to your desired network interface
 const sourceIp = interfaces[networkInterface].find(i => i.family === 'IPv4').address;
