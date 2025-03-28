@@ -5,10 +5,12 @@ const os = require('os');
 const sdpTransform = require('sdp-transform');
 const { spawn } = require('child_process');
 
-// Constants and Global Variables
+// Config (adjust as needed)
 const sdpDirectory = 'sdp';
+const networkInterface = "en7";
+
+// Constants and Global Variables
 const interfaces = os.networkInterfaces();
-const networkInterface = "en7"; // Change this to your desired network interface
 const sourceIp = interfaces[networkInterface].find(i => i.family === 'IPv4').address;
 
 // Array to store child processes
