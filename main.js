@@ -6,7 +6,7 @@ const sdpTransform = require('sdp-transform');
 const { spawn } = require('child_process');
 
 // Config (adjust as needed)
-const sdpDirectory = 'sdp';
+const sdpDirectory = 'sdp/tests/L24';
 const networkInterface = "en7";
 
 // Constants and Global Variables
