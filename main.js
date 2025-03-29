@@ -5,9 +5,21 @@ const os = require('os');
 const sdpTransform = require('sdp-transform');
 const { spawn } = require('child_process');
 
-// Config (adjust as needed)
-const sdpDirectory = 'sdp/tests/L24';
-const networkInterface = "en7";
+// Default configuration
+let sdpDirectory = 'sdp/tests/L24';
+let networkInterface = "en7";
+let gstEnabled = true;
+
+// Parse CLI arguments for configuration
+process.argv.slice(2).forEach(arg => {
+    if (arg.startsWith('--sdpdirectory=')) {
+        sdpDirectory = arg.split('=')[1];
+    } else if (arg.startsWith('--networkinterface=')) {
+        networkInterface = arg.split('=')[1];
+    } else if (arg === '--disable-gst') {
+        gstEnabled = false;
+    }
+});
 
 // Constants and Global Variables
 const interfaces = os.networkInterfaces();
@@ -100,7 +112,7 @@ async function getSdpFilesRecursively(dir) {
  *  - Reads the file.
  *  - Parses and modifies the SDP.
  *  - Announces the SDP via SAP.
- *  - Spawns a Python process with the appropriate arguments.
+ *  - Spawns a GStreamer process with the appropriate arguments (if enabled).
  *
  * @param {string} filePath - The path to the SDP file.
  */
@@ -138,7 +150,7 @@ function processSdpFile(filePath) {
             // Announce the SDP via SAP multicast
             announceStream(newSdp, sourceIp, false);
 
-            // Extract stream parameters for the Python script
+            // Extract stream parameters for the GStreamer pipeline
             for (let i = 0; i < sdpObject.media.length; i++) {
                 const rtpInfo = sdpObject.media[i].rtp[0];
                 const payloadType = rtpInfo.payload;
@@ -158,7 +170,7 @@ function processSdpFile(filePath) {
                     multicastAddress = sdpObject.connection.ip.split("/")[0];
                 }
                 
-                // construct pipeline string
+                // Construct pipeline string
                 let audioFormat, rtpPay;
                 if (codec === 'l24') {
                     audioFormat = 'S24BE';
@@ -176,21 +188,25 @@ function processSdpFile(filePath) {
                     `application/x-rtp,clock-rate=${sampleRate},channels=${channels},payload=${payloadType} ! ` +
                     `udpsink host=${multicastAddress} port=${udpPort} qos=true qos-dscp=34 multicast-iface=${networkInterface}`;
 
-                // Spawn the Python process as a child process
-                const gstProcess = spawn('gst-launch-1.0', pipelineStr.split(' '));
-                childProcesses.push(gstProcess);
+                // Spawn the GStreamer process as a child process if enabled
+                if (gstEnabled) {
+                    const gstProcess = spawn('gst-launch-1.0', pipelineStr.split(' '));
+                    childProcesses.push(gstProcess);
 
-                gstProcess.stdout.on('data', (data) => {
-                    console.log(`Python stdout: ${data}`);
-                });
+                    gstProcess.stdout.on('data', (data) => {
+                        console.log(`GStreamer stdout: ${data}`);
+                    });
 
-                gstProcess.stderr.on('data', (data) => {
-                    console.error(`Python stderr: ${data}`);
-                });
+                    gstProcess.stderr.on('data', (data) => {
+                        console.error(`GStreamer stderr: ${data}`);
+                    });
 
-                gstProcess.on('close', (code) => {
-                    console.log(`Python process exited with code ${code}`);
-                });
+                    gstProcess.on('close', (code) => {
+                        console.log(`GStreamer process exited with code ${code}`);
+                    });
+                } else {
+                    console.log("GStreamer stream generation disabled.");
+                }
             }
         } catch (parseError) {
             console.error(`Error parsing SDP in file ${filePath}:`, parseError);
