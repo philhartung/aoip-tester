@@ -125,30 +125,34 @@ function processSdpFile(filePath) {
         try {
             // Parse the SDP using sdp-transform
             let sdpObject = sdpTransform.parse(data);
+            
+            if (gstEnabled) {
+                // Modify the SDP object: update origin IP
+                sdpObject.origin.address = sourceIp;
 
-            // Modify the SDP object: update origin IP
-            sdpObject.origin.address = sourceIp;
-
-            // Update clock source if using PTP
-            if (sdpObject.tsRefClocks && sdpObject.tsRefClocks[0].clksrc === 'ptp') {
-                sdpObject.tsRefClocks[0].clksrcExt = 'IEEE1588-2008:7C-2E-0D-FF-FE-00-00-00:0';
-            }
-
-            // Update each media session in the SDP
-            for (let i = 0; i < sdpObject.media.length; i++) {
-                if (sdpObject.media[i].tsRefClocks && sdpObject.media[i].tsRefClocks[0].clksrc === 'ptp') {
-                    sdpObject.media[i].tsRefClocks[0].clksrcExt = 'IEEE1588-2008:7C-2E-0D-FF-FE-00-00-00:0';
+                // Update clock source if using PTP
+                if (sdpObject.tsRefClocks && sdpObject.tsRefClocks[0].clksrc === 'ptp') {
+                    sdpObject.tsRefClocks[0].clksrcExt = 'IEEE1588-2008:7C-2E-0D-FF-FE-00-00-00:0';
                 }
-                if (sdpObject.media[i].sourceFilter) {
-                    sdpObject.media[i].sourceFilter.srcList = sourceIp;
+
+                // Update each media session in the SDP
+                for (let i = 0; i < sdpObject.media.length; i++) {
+                    if (sdpObject.media[i].tsRefClocks && sdpObject.media[i].tsRefClocks[0].clksrc === 'ptp') {
+                        sdpObject.media[i].tsRefClocks[0].clksrcExt = 'IEEE1588-2008:7C-2E-0D-FF-FE-00-00-00:0';
+                    }
+                    if (sdpObject.media[i].sourceFilter) {
+                        sdpObject.media[i].sourceFilter.srcList = sourceIp;
+                    }
                 }
+
+                // Convert the (possibly modified) SDP object back into a string
+                const newSdp = sdpTransform.write(sdpObject);
+
+                // Announce the SDP via SAP multicast
+                announceStream(newSdp, sourceIp, false);
+            } else {
+                announceStream(data, sourceIp, false);
             }
-
-            // Convert the (possibly modified) SDP object back into a string
-            const newSdp = sdpTransform.write(sdpObject);
-
-            // Announce the SDP via SAP multicast
-            announceStream(newSdp, sourceIp, false);
 
             // Extract stream parameters for the GStreamer pipeline
             for (let i = 0; i < sdpObject.media.length; i++) {
