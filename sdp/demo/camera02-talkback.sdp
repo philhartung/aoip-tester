@@ -1,0 +1,12 @@
+v=0
+o=- 3877479886 1 IN IP4 10.100.0.22
+s=Camera 02 Talkback
+t=0 0
+m=audio 16387 RTP/AVP 97
+c=IN IP4 239.255.145.67/255
+a=source-filter:incl IN IP4 239.255.145.67 10.100.0.22
+a=rtpmap:97 L24/48000/8
+a=ptime:1
+a=ts-refclk:ptp=IEEE1588-2008:00-1D-C1-FF-FE-51-D7-EB:0
+a=mediaclk:direct=0
+a=ssrc:4127415352 cname:443F3B4710A24E008EF0FF4F62C92C35
