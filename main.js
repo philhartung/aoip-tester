@@ -163,8 +163,9 @@ function processSdpFile(filePath) {
                 const packetTimeNS = Math.floor(parseFloat(packetTime) * 1e6);
                 const channels = rtpInfo.encoding || 8;
                 const sampleRate = rtpInfo.rate || 48000;
+                const samplesPerPacket = Math.floor(sampleRate / 1000 * packetTime);
                 const udpPort = sdpObject.media[i].port || 5004;
-                let audiotestsrcStr = 'audiotestsrc freq=' + (Math.floor(Math.random() * (1000 - 240 + 1)) + 240);
+                let audiotestsrcStr = `audiotestsrc is-live=true samplesperbuffer=${samplesPerPacket} tick-interval=${packetTimeNS} freq=` + (Math.floor(Math.random() * (1000 - 240 + 1)) + 240);
 
                 // Determine the multicast address
                 let multicastAddress = "239.69.0.121";
