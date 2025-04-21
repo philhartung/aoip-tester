@@ -6,7 +6,7 @@ const sdpTransform = require('sdp-transform');
 const { spawn } = require('child_process');
 
 // Default configuration
-let sdpDirectory = 'sdp/tests/L24';
+let sdpDirectory = 'sdp/tests';
 let networkInterface = "en7";
 let gstEnabled = true;
 
