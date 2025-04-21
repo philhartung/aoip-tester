@@ -21,6 +21,8 @@ SDP Files for several stream configurations are provided under `sdp/tests/`:
 | L16   | 44.1kHz    | 8        | 1ms         |
 | L16   | 48kHz      | 1        | 0.125ms     |
 | L16   | 48kHz      | 1        | 1ms         |
+| L16   | 48kHz      | 2        | 4ms         |
+| L16   | 48kHz      | 4        | 2ms         |
 | L16   | 48kHz      | 8        | 0.125ms     |
 | L16   | 48kHz      | 8        | 1ms         |
 | L16   | 48kHz      | 64       | 0.125ms     |
@@ -33,6 +35,8 @@ SDP Files for several stream configurations are provided under `sdp/tests/`:
 | L24   | 44.1kHz    | 8        | 1ms         |
 | L24   | 48kHz      | 1        | 0.125ms     |
 | L24   | 48kHz      | 1        | 1ms         |
+| L24   | 48kHz      | 2        | 4ms         |
+| L24   | 48kHz      | 4        | 2ms         |
 | L24   | 48kHz      | 8        | 0.125ms     |
 | L24   | 48kHz      | 8        | 1ms         |
 | L24   | 48kHz      | 64       | 0.125ms     |
