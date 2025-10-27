@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "sdp-transform": "^2.15.0"
+    "sdp-transform": "^3.0.0"
   }
 }
